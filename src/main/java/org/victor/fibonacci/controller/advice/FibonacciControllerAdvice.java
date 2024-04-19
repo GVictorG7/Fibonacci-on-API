@@ -23,7 +23,7 @@ public class FibonacciControllerAdvice {
      */
     @ExceptionHandler(InvalidInputException.class)
     public ResponseEntity<String> handleInvalidInputException(InvalidInputException ex) {
-        LOGGER.info("Invalid input is being handled: {}", ex.getMessage());
+        LOGGER.info("Invalid input is being handled: {}. correlationId={}", ex.getMessage(), ex.getCorrelationId());
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

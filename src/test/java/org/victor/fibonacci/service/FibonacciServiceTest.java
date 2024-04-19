@@ -32,17 +32,17 @@ class FibonacciServiceTest {
 
     @Test
     void givenIndexInInitialCacheWhenCalculateFibonacciThenReturnCachedValue() {
-        assertEquals(0L, classUnderTest.getFibonacciNumber(0));
+        assertEquals(0L, classUnderTest.getFibonacciNumber(0, ""));
         verify(fibonacciCache).containsKey(0);
         verify(fibonacciCache).get(0);
-        assertEquals(1L, classUnderTest.getFibonacciNumber(1));
+        assertEquals(1L, classUnderTest.getFibonacciNumber(1, ""));
         verify(fibonacciCache).containsKey(1);
         verify(fibonacciCache).get(1);
     }
 
     @Test
     void givenIndexNotInCacheWhenCalculateFibonacciThenCalculate() {
-        assertEquals(8L, classUnderTest.getFibonacciNumber(6));
+        assertEquals(8L, classUnderTest.getFibonacciNumber(6, ""));
         verify(fibonacciCache).containsKey(6);
         verify(fibonacciCache).get(0);
         verify(fibonacciCache).get(1);
@@ -56,10 +56,10 @@ class FibonacciServiceTest {
     @Test
     void givenIndexNotInCacheAndIntermediateCalculationWhenCalculateFibonacciThenCalculateFromMaxIndex() {
         // GIVEN
-        classUnderTest.getFibonacciNumber(6);
+        classUnderTest.getFibonacciNumber(6, "");
 
         // THEN
-        assertEquals(21L, classUnderTest.getFibonacciNumber(8));
+        assertEquals(21L, classUnderTest.getFibonacciNumber(8, ""));
         verify(fibonacciCache).containsKey(8);
         verify(fibonacciCache).get(5);
         // one time from the GIVEN invocation and one from the THEN invocation

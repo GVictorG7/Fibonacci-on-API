@@ -1,4 +1,4 @@
-package org.victor.fibonacci.validation;
+package org.victor.fibonacci.validator;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,14 +26,14 @@ class FibonacciInputValidatorTest {
     @MethodSource("getNonPositiveIntegerTestData")
     void givenNonPositiveIntegerObjectInputWhenValidateInputThenThrowException(String input) {
         InvalidInputException exception = assertThrows(InvalidInputException.class,
-                () -> classUnderTest.validateFibonacciInput(input));
+                () -> classUnderTest.validateFibonacciInput(input, ""));
         assertNotNull(exception);
         assertEquals(INVALID_INPUT_EXCEPTION_MESSAGE, exception.getMessage());
     }
 
     @Test
     void givenPositiveIntegerInputWhenValidateInputThenDoNotThrowException() {
-        assertDoesNotThrow(() -> classUnderTest.validateFibonacciInput("2"),
+        assertDoesNotThrow(() -> classUnderTest.validateFibonacciInput("2", ""),
                 "When called with a positive integer, Fibonacci input validation should not fail");
     }
 
