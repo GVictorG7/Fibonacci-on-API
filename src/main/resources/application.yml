@@ -4,3 +4,6 @@ server:
     multipart:
       max-request-size: 1MB
       max-file-size: 1MB
+
+fibonacci:
+  max-request-param-length: 3

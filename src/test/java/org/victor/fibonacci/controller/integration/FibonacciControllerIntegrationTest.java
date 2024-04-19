@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +21,8 @@ import org.victor.fibonacci.controller.advice.FibonacciControllerAdvice;
 @SpringBootTest
 class FibonacciControllerIntegrationTest {
     private static final String CALCULATE_FIBONACCI_GET_ENDPOINT = "/fib";
-    private static final String INVALID_INPUT_EXCEPTION_MESSAGE = "The Fibonacci index 'n' must be a positive integer";
+    private static final String INVALID_INPUT_EXCEPTION_MESSAGE = "The Fibonacci index 'n' must be a positive integer.";
+    private static final String INVALID_LENGTH_EXCEPTION_MESSAGE = "The Fibonacci index 'n' must be 3 digits max.";
 
     private MockMvc mockMvc;
 
@@ -61,7 +63,20 @@ class FibonacciControllerIntegrationTest {
                 .andExpect(content().string(INVALID_INPUT_EXCEPTION_MESSAGE));
     }
 
+    @Test
+    void givenLongerStingIndexWhenGetFibonacciThenReturnBadRequest() throws Exception {
+        // WHEN
+        mockMvc.perform(get(CALCULATE_FIBONACCI_GET_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .param("n", "string"))
+                // THEN
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(
+                        INVALID_LENGTH_EXCEPTION_MESSAGE + INVALID_INPUT_EXCEPTION_MESSAGE));
+    }
+
     private static Stream<String> getNonPositiveIntegerTestData() {
-        return Stream.of("string", "1.1", "-1");
+        return Stream.of("str", "1.1", "-1");
     }
 }
