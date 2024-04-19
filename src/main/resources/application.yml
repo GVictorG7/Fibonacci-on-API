@@ -1,2 +1,6 @@
 server:
   port: 8000
+  servlet:
+    multipart:
+      max-request-size: 1MB
+      max-file-size: 1MB
