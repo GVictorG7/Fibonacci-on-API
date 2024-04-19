@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class FibonacciService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FibonacciService.class);
-    private final Map<Integer, Long> cache;
+    private final Map<Integer, BigInteger> cache;
     private final AtomicInteger maxCalculatedIndex;
 
     /**
@@ -23,7 +24,7 @@ public class FibonacciService {
      * @param fibonacciCache a {@link Map} containing the first 2 root staring values from the Fibonacci sequence
      */
     @Autowired
-    public FibonacciService(Map<Integer, Long> fibonacciCache) {
+    public FibonacciService(Map<Integer, BigInteger> fibonacciCache) {
         this.cache = fibonacciCache;
         this.maxCalculatedIndex = new AtomicInteger(1);
     }
@@ -36,7 +37,7 @@ public class FibonacciService {
      * @param correlationId the unique identification id of the request for logging purposes
      * @return the Fibonacci sequence number corresponding the index 'n' received as parameter
      */
-    public long getFibonacciNumber(int n, String correlationId) {
+    public BigInteger getFibonacciNumber(int n, String correlationId) {
         LOGGER.info("Fetching Fibonacci number for n = {}. correlationId={}", n, correlationId);
         if (!cache.containsKey(n)) {
             calculateFibonacciNumberFromMaxIndex(n, correlationId);
@@ -58,11 +59,11 @@ public class FibonacciService {
         int lastCalculatedIndex = maxCalculatedIndex.get();
         LOGGER.info("Calculating Fibonacci number n = {} from the last calculated index = {}. correlationId={}",
                 n, lastCalculatedIndex, correlationId);
-        long a = cache.get(lastCalculatedIndex - 1);
-        long b = cache.get(lastCalculatedIndex);
+        BigInteger a = cache.get(lastCalculatedIndex - 1);
+        BigInteger b = cache.get(lastCalculatedIndex);
 
         for (int index = lastCalculatedIndex + 1; index <= n; index++) {
-            long fib = a + b;
+            BigInteger fib = a.add(b);
             LOGGER.info("Caching Fibonacci number = {} at index = {}. correlationId={}", fib, index, correlationId);
             cache.putIfAbsent(index, fib);
             a = b;

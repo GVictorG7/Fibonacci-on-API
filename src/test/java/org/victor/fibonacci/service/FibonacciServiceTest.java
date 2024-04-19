@@ -5,6 +5,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,13 +13,13 @@ import org.junit.jupiter.api.Test;
 
 class FibonacciServiceTest {
     private FibonacciService classUnderTest;
-    private Map<Integer, Long> fibonacciCache;
+    private Map<Integer, BigInteger> fibonacciCache;
 
     @BeforeEach
     void setUpClass() {
         fibonacciCache = spy(new HashMap<>());
-        fibonacciCache.put(0, 0L);
-        fibonacciCache.put(1, 1L);
+        fibonacciCache.put(0, BigInteger.ZERO);
+        fibonacciCache.put(1, BigInteger.ONE);
         classUnderTest = new FibonacciService(fibonacciCache);
     }
 
@@ -26,31 +27,31 @@ class FibonacciServiceTest {
     void givenNewFibonacciServiceThenCacheHasTheTwoRootValues() {
         // asserting the state of the service's cache after initialization
         assertEquals(2, fibonacciCache.size());
-        assertEquals(0, fibonacciCache.get(0));
-        assertEquals(1, fibonacciCache.get(1));
+        assertEquals(BigInteger.ZERO, fibonacciCache.get(0));
+        assertEquals(BigInteger.ONE, fibonacciCache.get(1));
     }
 
     @Test
     void givenIndexInInitialCacheWhenCalculateFibonacciThenReturnCachedValue() {
-        assertEquals(0L, classUnderTest.getFibonacciNumber(0, ""));
+        assertEquals(BigInteger.ZERO, classUnderTest.getFibonacciNumber(0, ""));
         verify(fibonacciCache).containsKey(0);
         verify(fibonacciCache).get(0);
-        assertEquals(1L, classUnderTest.getFibonacciNumber(1, ""));
+        assertEquals(BigInteger.ONE, classUnderTest.getFibonacciNumber(1, ""));
         verify(fibonacciCache).containsKey(1);
         verify(fibonacciCache).get(1);
     }
 
     @Test
     void givenIndexNotInCacheWhenCalculateFibonacciThenCalculate() {
-        assertEquals(8L, classUnderTest.getFibonacciNumber(6, ""));
+        assertEquals(BigInteger.valueOf(8), classUnderTest.getFibonacciNumber(6, ""));
         verify(fibonacciCache).containsKey(6);
         verify(fibonacciCache).get(0);
         verify(fibonacciCache).get(1);
-        verify(fibonacciCache).putIfAbsent(2, 1L);
-        verify(fibonacciCache).putIfAbsent(3, 2L);
-        verify(fibonacciCache).putIfAbsent(4, 3L);
-        verify(fibonacciCache).putIfAbsent(5, 5L);
-        verify(fibonacciCache).putIfAbsent(6, 8L);
+        verify(fibonacciCache).putIfAbsent(2, BigInteger.ONE);
+        verify(fibonacciCache).putIfAbsent(3, BigInteger.TWO);
+        verify(fibonacciCache).putIfAbsent(4, BigInteger.valueOf(3));
+        verify(fibonacciCache).putIfAbsent(5, BigInteger.valueOf(5));
+        verify(fibonacciCache).putIfAbsent(6, BigInteger.valueOf(8));
     }
 
     @Test
@@ -59,12 +60,12 @@ class FibonacciServiceTest {
         classUnderTest.getFibonacciNumber(6, "");
 
         // THEN
-        assertEquals(21L, classUnderTest.getFibonacciNumber(8, ""));
+        assertEquals(BigInteger.valueOf(21), classUnderTest.getFibonacciNumber(8, ""));
         verify(fibonacciCache).containsKey(8);
         verify(fibonacciCache).get(5);
         // one time from the GIVEN invocation and one from the THEN invocation
         verify(fibonacciCache, times(2)).get(6);
-        verify(fibonacciCache).putIfAbsent(7, 13L);
-        verify(fibonacciCache).putIfAbsent(8, 21L);
+        verify(fibonacciCache).putIfAbsent(7, BigInteger.valueOf(13));
+        verify(fibonacciCache).putIfAbsent(8, BigInteger.valueOf(21));
     }
 }

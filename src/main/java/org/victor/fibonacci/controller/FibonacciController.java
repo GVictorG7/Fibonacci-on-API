@@ -11,6 +11,8 @@ import org.victor.fibonacci.service.FibonacciService;
 import org.victor.fibonacci.util.CorrelationIdGenerator;
 import org.victor.fibonacci.validator.FibonacciInputValidator;
 
+import java.math.BigInteger;
+
 /**
  * {@link RestController} receiving the requests for calculating the Fibonacci sequence numbers
  */
@@ -35,10 +37,10 @@ public class FibonacciController {
         LOGGER.info("Fibonacci number calculation requested for n = {}. correlationId={}", n, correlationId);
         validator.validateFibonacciInput(n, correlationId);
         int intN = Integer.parseInt(n);
-        long fib = service.getFibonacciNumber(intN, correlationId);
+        BigInteger fib = service.getFibonacciNumber(intN, correlationId);
 
         LOGGER.info("Fibonacci number calculated for n = {} is fib = {}. Sending response. correlationId={}",
                 intN, fib, correlationId);
-        return ResponseEntity.ok(Long.toString(fib));
+        return ResponseEntity.ok(fib.toString());
     }
 }

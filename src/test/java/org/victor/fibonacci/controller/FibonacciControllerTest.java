@@ -11,6 +11,8 @@ import org.victor.fibonacci.util.CorrelationIdGenerator;
 import org.victor.fibonacci.util.exception.InvalidInputException;
 import org.victor.fibonacci.validator.FibonacciInputValidator;
 
+import java.math.BigInteger;
+
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,7 +38,7 @@ class FibonacciControllerTest {
     void givenPositiveIntegerIndexWhenGetFibonacciThenReturnResultOk() throws Exception {
         // GIVEN
         when(correlationIdGenerator.generateCorrelationId()).thenReturn(CORRELATION_ID);
-        when(service.getFibonacciNumber(5, CORRELATION_ID)).thenReturn(5L);
+        when(service.getFibonacciNumber(5, CORRELATION_ID)).thenReturn(BigInteger.valueOf(5));
 
         // WHEN
         mockMvc.perform(get(CALCULATE_FIBONACCI_GET_ENDPOINT)
