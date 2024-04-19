@@ -46,11 +46,11 @@ class FibonacciServiceTest {
         verify(fibonacciCache).containsKey(6);
         verify(fibonacciCache).get(0);
         verify(fibonacciCache).get(1);
-        verify(fibonacciCache).put(2, 1L);
-        verify(fibonacciCache).put(3, 2L);
-        verify(fibonacciCache).put(4, 3L);
-        verify(fibonacciCache).put(5, 5L);
-        verify(fibonacciCache).put(6, 8L);
+        verify(fibonacciCache).putIfAbsent(2, 1L);
+        verify(fibonacciCache).putIfAbsent(3, 2L);
+        verify(fibonacciCache).putIfAbsent(4, 3L);
+        verify(fibonacciCache).putIfAbsent(5, 5L);
+        verify(fibonacciCache).putIfAbsent(6, 8L);
     }
 
     @Test
@@ -64,7 +64,7 @@ class FibonacciServiceTest {
         verify(fibonacciCache).get(5);
         // one time from the GIVEN invocation and one from the THEN invocation
         verify(fibonacciCache, times(2)).get(6);
-        verify(fibonacciCache).put(7, 13L);
-        verify(fibonacciCache).put(8, 21L);
+        verify(fibonacciCache).putIfAbsent(7, 13L);
+        verify(fibonacciCache).putIfAbsent(8, 21L);
     }
 }

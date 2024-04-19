@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@link Service} class containing the logic for calculating the Fibonacci sequence numbers
@@ -14,7 +15,7 @@ import java.util.Map;
 public class FibonacciService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FibonacciService.class);
     private final Map<Integer, Long> cache;
-    private Integer maxCalculatedIndex;
+    private final AtomicInteger maxCalculatedIndex;
 
     /**
      * Controller that injects the cache and sets the starting 'maxCalculatedIndex' field value to 1
@@ -24,7 +25,7 @@ public class FibonacciService {
     @Autowired
     public FibonacciService(Map<Integer, Long> fibonacciCache) {
         this.cache = fibonacciCache;
-        this.maxCalculatedIndex = 1;
+        this.maxCalculatedIndex = new AtomicInteger(1);
     }
 
     /**
@@ -36,12 +37,12 @@ public class FibonacciService {
      * @return the Fibonacci sequence number corresponding the index 'n' received as parameter
      */
     public long getFibonacciNumber(int n, String correlationId) {
-        LOGGER.info("Starting calculating fibonacci number for n = {}. correlationId={}", n, correlationId);
-        if (cache.containsKey(n)) {
+        LOGGER.info("Fetching Fibonacci number for n = {}. correlationId={}", n, correlationId);
+        if (!cache.containsKey(n)) {
+            calculateFibonacciNumberFromMaxIndex(n, correlationId);
+        } else {
             LOGGER.info("Fibonacci number is already calculated in cache. correlationId={}", correlationId);
-            return cache.get(n);
         }
-        calculateFibonacciNumberFromMaxIndex(n, correlationId);
         return cache.get(n);
     }
 
@@ -54,19 +55,20 @@ public class FibonacciService {
      * @param correlationId the unique identification id of the request for logging purposes
      */
     private void calculateFibonacciNumberFromMaxIndex(int n, String correlationId) {
+        int lastCalculatedIndex = maxCalculatedIndex.get();
         LOGGER.info("Calculating Fibonacci number n = {} from the last calculated index = {}. correlationId={}",
-                n, maxCalculatedIndex, correlationId);
-        long a = cache.get(maxCalculatedIndex - 1);
-        long b = cache.get(maxCalculatedIndex);
+                n, lastCalculatedIndex, correlationId);
+        long a = cache.get(lastCalculatedIndex - 1);
+        long b = cache.get(lastCalculatedIndex);
 
-        for (int index = maxCalculatedIndex + 1; index <= n; index++) {
+        for (int index = lastCalculatedIndex + 1; index <= n; index++) {
             long fib = a + b;
             LOGGER.info("Caching Fibonacci number = {} at index = {}. correlationId={}", fib, index, correlationId);
-            cache.put(index, fib);
+            cache.putIfAbsent(index, fib);
             a = b;
             b = fib;
-            maxCalculatedIndex = index;
-            LOGGER.info("New max calculated index = {}. correlationId={}", maxCalculatedIndex, correlationId);
         }
+        maxCalculatedIndex.set(n);
+        LOGGER.info("New max calculated index = {}. correlationId={}", n, correlationId);
     }
 }
