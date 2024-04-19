@@ -7,19 +7,34 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+/**
+ * {@link Service} class containing the logic for calculating the Fibonacci sequence numbers
+ */
 @Service
 public class FibonacciService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FibonacciService.class);
     private final Map<Integer, Long> cache;
     private Integer maxCalculatedIndex;
 
+    /**
+     * Controller that injects the cache and sets the starting 'maxCalculatedIndex' field value to 1
+     *
+     * @param fibonacciCache a {@link Map} containing the first 2 root staring values from the Fibonacci sequence
+     */
     @Autowired
     public FibonacciService(Map<Integer, Long> fibonacciCache) {
         this.cache = fibonacciCache;
         this.maxCalculatedIndex = 1;
     }
 
-    public long calculateFibonacciNumber(int n) {
+    /**
+     * Retrieves the Fibonacci sequence number corresponding to the index 'n' received as parameter.
+     * If the values was calculated before and resides in cache, it will be fetched from the cache
+     *
+     * @param n a non-negative integer value representing the Fibonacci sequence index
+     * @return the Fibonacci sequence number corresponding the index 'n' received as parameter
+     */
+    public long getFibonacciNumber(int n) {
         LOGGER.info("Starting calculating fibonacci number for n = {}", n);
         if (cache.containsKey(n)) {
             LOGGER.info("Fibonacci number is already calculated in cache.");
@@ -29,6 +44,13 @@ public class FibonacciService {
         return cache.get(n);
     }
 
+    /**
+     * Calculate the Fibonacci sequence number corresponding to the index 'n' received as parameter.
+     * The calculation starts from the last 'maxCalculatedIndex', using the last 2 values from the cache.
+     * Each new Fibonacci number calculated is saved in the cache, and the 'maxCalculatedIndex' is updated.
+     *
+     * @param n a non-negative integer value representing the Fibonacci sequence index
+     */
     private void calculateFibonacciNumberFromMaxIndex(int n) {
         LOGGER.info("Calculating Fibonacci number n = {} from the last calculated index = {}", n, maxCalculatedIndex);
         long a = cache.get(maxCalculatedIndex - 1);

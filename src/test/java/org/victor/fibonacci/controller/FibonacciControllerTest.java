@@ -32,7 +32,7 @@ class FibonacciControllerTest {
     @Test
     void givenPositiveIntegerIndexWhenGetFibonacciThenReturnResultOk() throws Exception {
         // GIVEN
-        when(service.calculateFibonacciNumber(5)).thenReturn(5L);
+        when(service.getFibonacciNumber(5)).thenReturn(5L);
 
         // WHEN
         mockMvc.perform(get(CALCULATE_FIBONACCI_GET_ENDPOINT)
