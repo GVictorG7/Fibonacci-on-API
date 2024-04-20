@@ -1,0 +1,139 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fib-namespace
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fibonacci-config
+  namespace: fib-namespace
+data:
+  application.yml: |
+    fibonacci:
+      max-request-param-length: "4"
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-resources
+  namespace: fib-namespace
+spec:
+  hard:
+    pods: "8"
+    requests.cpu: "5"
+    requests.memory: "8Gi"
+    limits.cpu: "10"
+    limits.memory: "16Gi"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fib-deployment
+  namespace: fib-namespace
+#  labels:
+#    app: fib-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fib
+  template:
+    metadata:
+#      name: fib-deployment
+      labels:
+        app: fib
+    spec:
+      restartPolicy: Always
+      automountServiceAccountToken: false
+      volumes:
+        - name: config-volume
+          configMap:
+            name: fibonacci-config
+      containers:
+        - name: fib
+          image: fibonacci:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config
+              name: config-volume
+              readOnly: true
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "500m"
+              ephemeral-storage: "1Gi"
+            limits:
+              memory: "512Mi"
+              cpu: "750m"
+              ephemeral-storage: "2Gi"
+          readinessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 25
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fib-service
+  namespace: fib-namespace
+spec:
+  selector:
+    app: fib
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: LoadBalancer
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fib-hpa
+  namespace: fib-namespace
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fib-deployment
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 50
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fib-pdb
+  namespace: fib-namespace
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: fib
