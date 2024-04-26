@@ -65,11 +65,15 @@ public class FibonacciService {
         for (int index = lastCalculatedIndex + 1; index <= n; index++) {
             BigInteger fib = a.add(b);
             LOGGER.info("Caching Fibonacci number = {} at index = {}. correlationId={}", fib, index, correlationId);
-            cache.putIfAbsent(index, fib);
+            updateCache(index, fib);
             a = b;
             b = fib;
         }
         maxCalculatedIndex.set(n);
         LOGGER.info("New max calculated index = {}. correlationId={}", n, correlationId);
+    }
+
+    private synchronized void updateCache(int index, BigInteger fibNumber) {
+        cache.putIfAbsent(index, fibNumber);
     }
 }
